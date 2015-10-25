@@ -3,7 +3,8 @@ Stephanie Her, Lauren Mitchell, Taylor Neely, Erin Connolly
 
 ## Background: 
 Current DNA sequencing techniques are limited in the length of nucleotides in a sequence they can read in a given cycle. As a result, sequencing a large amount of DNA, such as that found in genomes, results in many small read fragments of lengths around 500-1000 nucleotides (CHECK). Genome assembly algorithms have been developed to take these produced fragments and align them to one another utilizing read overlaps. However, these algorithms have encountered several challenging obstacles; for instance, genomes contain large numbers of identical sequences. In our project, we will perform genome assembly using Eulerian paths as shown in Michael S. Waterman’s 2001 paper titled, “An Eulerian path approach to DNA fragment assembly.”
-Problem: Given a set of short DNA reads from a sequenced genome with overlaps, assemble the reads in such a way as to fully recreate the genome.
+## Problem: 
+Given a set of short DNA reads from a sequenced genome with overlaps, assemble the reads in such a way as to fully recreate the genome.
 ## Code:
 Potential reader for FASTQ files: https://github.com/lh3/readfq/blob/master/readfq.py
 Or just use BioPython in faster ways: http://news.open-bio.org/news/2009/09/biopython-fast-fastq/
