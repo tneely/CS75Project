@@ -14,8 +14,9 @@ Eulerian path algorithm
 Error correction
 Graph data structure
 Other code
-Test cases
+## Test cases
 Short assembly on clean reads
+Test
 Short assembly with errors (substitutions and gaps)
 Short assembly with repeats
 Short assembly with reversed reads
