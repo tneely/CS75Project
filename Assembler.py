@@ -40,7 +40,7 @@ class Assembler:
 				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
 					node1 = self.graph.lookup(kmer[:k-1])
 					node2 = self.graph.lookup(kmer[1:])
-					self.graph.add_edge(kmer, node1, node2)
+					self.graph.add_edge(node1, node2, kmer)
 
 
 
