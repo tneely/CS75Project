@@ -40,15 +40,11 @@ class Assembler:
 				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
 					node1 = self.graph.lookup(kmer[:k-1])
 					node2 = self.graph.lookup(kmer[1:])
-					self.graph.add_edge(node1, node2, kmer)
-
-
-
-
+					self.graph.new_edge(node1, node2, kmer)
 
 # Command-line driver for assembly
 if __name__ == '__main__':
-    filename = argv[1]
-    k = argv[2]
-    assembly = Assembler(filename, k)
-    assembly.assemble()
+	filename = argv[1]
+	k = argv[2]
+	assembly = Assembler(filename, k)
+	assembly.assemble()

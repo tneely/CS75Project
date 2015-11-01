@@ -12,6 +12,7 @@ hi
 ###############
 ### IMPORTS ###
 ###############
+import os
 
 ############
 ### CODE ###
@@ -39,7 +40,7 @@ class Loader:
         """
 
         # Check extensions (.fq, .fastq accepted)
-        if not filename.endswith(".fq") or filename.endswith(".fastq"):
+        if not (filename.endswith(".fq") or filename.endswith(".fastq")):
             raise ValueError("The file type was not recognized, please use of the the following formats: \
             				.fq, .fastq")
 
@@ -50,11 +51,17 @@ class Loader:
         if not os.access(filename, os.F_OK):
             raise Exception("The file %r cannot be read."%(filename))
 
-        # Create profile dictionary
+        # Create profile list
         reads = []
         # Parse file
         for line in open(filename, 'r'):
-            print line
+            line = line.strip()
+            if line[:1] == "@":
+                name = line[1:] # do we want this?
+                isSeqNext = True
+            elif isSeqNext:
+                reads.append(line)
+                isSeqNext = False
 
         return Loader(reads)
 
@@ -73,6 +80,6 @@ class Loader:
         """
         return len(self.reads)
 
-    def __str__(self):
+    def __str__(self): #useless?
         """The list of reads"""
-        return self.reads
+        return "".join(self.reads)
