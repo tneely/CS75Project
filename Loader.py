@@ -1,11 +1,12 @@
 """
 File name: Loader.py
 Info: CS75 Final Project
-Authors: Stephanie Her, Lauren Mitchell, 
+Authors: Stephanie Her, Lauren Mitchell,
 		Taylor Neely, and Erin Connolly
 Date created: 30/10/2015
 Date last modified: 30/10/2015
 Python version: 2.7
+hi
 """
 
 ###############
@@ -19,7 +20,7 @@ class Loader:
     """Contains all information pertaining to a given gene."""
 
     def __init__(self, reads):
-        """ Do not call directly, use the load 
+        """ Do not call directly, use the load
             method instead.
             Example:
                 reads = Loader.load("file.fq")
@@ -54,7 +55,7 @@ class Loader:
         # Parse file
         for line in open(filename, 'r'):
             print line
-        
+
         return Loader(reads)
 
 
