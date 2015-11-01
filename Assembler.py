@@ -17,11 +17,58 @@ from Loader import Loader
 ############
 ### CODE ###
 ############
+
+class ListNode:
+
+	def __init__(self, content = None, next=None, last=None):
+		self.content = content
+		self.next = next
+		self.last = last
+
+
+
+class DLL:
+
+	def __init__(self):
+		self.sentinel = ListNode
+		self.sentinel.next = self.sentinel
+		self.sentinel.last = self.sentinel
+
+	def append(node):
+		node.last = self.sentinel.last
+		node.next = self.sentinel
+		self.sentinel.last.next = node
+		self.sentinel.last = node
+
+	def remove(node):
+		node.last.next = node.next
+		node.next.last = node.last
+
+	def insert(node1, node2):
+		"""Places node1 after node2"""
+		node1.last = node2
+		node1.next = node2.next
+		node2.next.last = node1
+		node2.next = node1
+
+	def pop():
+		"""Removes first node from DLL
+			Returns:
+				ListNode
+		"""
+		node = self.sentinel.next
+		self.sentinel.next = node.next
+		node.next.last = self.sentinel
+
+		return node
+
+
 class Assembler:
 	
 	def __init__(self, filename, k):
 
 		self.graph = Graph()
+		self.dll = DLL()
 
 		#loads file and REMOVES ANY REPEATS
 		reads = Loader.load(filename)
@@ -41,6 +88,22 @@ class Assembler:
 					node1 = self.graph.lookup(kmer[:k-1])
 					node2 = self.graph.lookup(kmer[1:])
 					self.graph.new_edge(node1, node2, kmer)
+					self.dll.append(ListNode(kmer))
+
+	def eulerian_path(self):
+		"""Constructs a eulerian
+			path on the graph using
+			Heirholzer's algorithm
+		"""
+		edge = self.dll.pop()
+		start = edge[0]
+		next = edge[1]
+
+		# loop until cycle back
+		while next != start:
+
+
+
 
 # Command-line driver for assembly
 if __name__ == '__main__':

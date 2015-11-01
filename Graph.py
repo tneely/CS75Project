@@ -21,9 +21,10 @@ Python version: 2.7
 ### NODE CLASS ###
 class Node:
 
-	def __init__(self, contents, adjacents = None): # Not sure what the best way to track adj is, within node or in edge class?
+	def __init__(self, contents): # Not sure what the best way to track adj is, within node or in edge class?
 		self.contents = contents
-		self.adjacents = adjacents
+		self.outgoing = []
+		self.incoming = []
 
 	def __getitem__(self, n):
 		"""The nth adjacent node in
@@ -49,8 +50,8 @@ class Node:
 			adjacent list of this
 			node, and vice versa
 		"""
-		self.adjacents.append(other)
-		other.adjacents.append(self)
+		self.outgoing.append(other)
+		other.incoming.append(self)
 ### NODE CLASS ###
 ##################
 
@@ -87,9 +88,10 @@ class Graph:
 
 	def __init__(self):
 		self.nodeList = []
-		self.nodeDict = {}
+		self.nodeDict = {} # lookup by contents
 		self.edgeList = []
-		self.edgeDict = {}
+		self.edgeDict = {} # lookup by starting vert
+		self.visited = False
 
 	def __str__(self):
 		"""Print out nodes and 
@@ -101,8 +103,8 @@ class Graph:
 
 		return out
 
-	def new_node(self, contents, adjacents = None):
-		node = Node(contents, adjacents)
+	def new_node(self, contents):
+		node = Node(contents)
 		self.nodeList.append(node)
 		self.nodeDict[contents] = node
 
@@ -111,10 +113,11 @@ class Graph:
 	def new_edge(self, node1, node2, contents = None):
 		edge = Edge(node1, node2, contents)
 		self.edgeList.append(edge)
-		if contents in self.edgeDict:
-			self.edgeDict[contents].append(edge)
+		node1.add_adj(node2)
+		if node1 in self.edgeDict:
+			self.edgeDict[node1].append(edge)
 		else:
-			self.edgeDict[contents] = [edge]
+			self.edgeDict[node1] = [edge]
 
 		return edge
 
