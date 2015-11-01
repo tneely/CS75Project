@@ -90,7 +90,7 @@ class Graph:
         
     def __str__(self):
     	"""Print out nodes and 
-    		their adjacents? 
+    		their adjacents?
     	"""
     	pass
 
