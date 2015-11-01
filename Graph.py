@@ -86,7 +86,9 @@ class Graph:
 
     def __init__(self):
         self.nodeList = []
+        self.nodeDict = {}
         self.edgeList = []
+        self.edgeDict = {}
         
     def __str__(self):
     	"""Print out nodes and 
@@ -97,12 +99,17 @@ class Graph:
     def new_node(self, contents, adjacents = None):
     	node = Node(contents, adjacents)
     	self.nodeList.append(node)
+    	self.nodeDict{contents} = node
 
     	return node
 
     def new_edge(self, contents = None, node1, node2):
     	edge = Edge(contents, node1, node2)
     	self.edgeList.append(edge)
+    	if contents in self.edgeDict:
+    		self.edgeDict[contents].append(edge)
+    	else:
+    		self.edgeDict[contents] = [edge]
 
     	return edge
 
@@ -111,3 +118,6 @@ class Graph:
 
     def del_edge(self, edge):
     	edgeList.remove(edge)
+
+    def lookup(self, contents):
+    	return self.nodeDict[contents]

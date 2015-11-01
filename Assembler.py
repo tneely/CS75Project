@@ -18,10 +18,37 @@ from Loader import Loader
 ### CODE ###
 ############
 class Assembler:
-	pass
+	
+	def __init__(self, filename, k):
+
+		self.graph = Graph()
+
+		#loads file and REMOVES ANY REPEATS
+		reads = Loader.load(filename)
+		# create set of possible nodes
+		nodeSet = set()
+		for read in reads:
+			for i in range(len(read)-(k-1)+1):
+				nodeSet.add(read[i:i+(k-1)])
+		# create nodes
+		for kmer in nodeSet:
+			self.graph.new_node(kmer)
+		# create edges
+		for read in reads:
+			for i in range(len(read)-k+1):
+				kmer = read[i:i+k]
+				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
+					node1 = self.graph.lookup(kmer[:k-1])
+					node2 = self.graph.lookup(kmer[1:])
+					self.graph.add_edge(kmer, node1, node2)
+
+
+
+
 
 # Command-line driver for assembly
 if __name__ == '__main__':
     filename = argv[1]
-    assembly = Assembler
-    assembly.load(filename)
+    k = argv[2]
+    assembly = Assembler(filename, k)
+    assembly.assemble()
