@@ -70,7 +70,7 @@ class Assembler:
 		self.graph = Graph()
 		self.dll = DLL()
 
-		#loads file and REMOVES ANY REPEATS
+		#loads file
 		reads = Loader.load(filename)
 		# create set of possible nodes
 		nodeSet = set()
