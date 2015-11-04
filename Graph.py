@@ -62,6 +62,7 @@ class Edge:
 	def __init__(self, node1, node2, contents = None):
 		self.contents = contents
 		self.adjacents = [node1, node2]
+		self.visited = False
 
 	def __getitem__(self, n):
 		"""The nth adjacent node in
@@ -119,6 +120,18 @@ class Graph:
 			self.edgeDict[node1] = [edge]
 
 		return edge
+
+	def get_unvisited(self, node):
+		# check if node in dict (wont for last)
+		if node not in self.edgeDict:
+			return None
+		# get edges for node
+		edges = self.edgeDict[node]
+		for edge in edges:
+			if not edge.visited:
+				return edge
+		# couldn't find unvisited edge
+		return None
 
 	def del_node(self, node):
 		nodeList.remove(node)

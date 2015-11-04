@@ -17,79 +17,11 @@ from Loader import Loader
 ############
 ### CODE ###
 ############
-
-class ListNode:
-
-	def __init__(self, contents = None, next=None, last=None):
-		self.contents = contents
-		self.next = next
-		self.last = last
-
-
-
-class DLL:
-
-	def __init__(self):
-		self.sentinel = ListNode()
-		self.sentinel.next = self.sentinel
-		self.sentinel.last = self.sentinel
-
-	def isEmpty(self):
-		if self.sentinel.next == self.sentinel:
-			return True
-		else:
-			return False
-
-	def append(self, node):
-		node.last = self.sentinel.last
-		node.next = self.sentinel
-		self.sentinel.last.next = node
-		self.sentinel.last = node
-
-	def remove(self, node):
-		node.last.next = node.next
-		node.next.last = node.last
-
-	def insert(self, node1, node2):
-		"""Places node1 after node2"""
-		node1.last = node2
-		node1.next = node2.next
-		node2.next.last = node1
-		node2.next = node1
-
-	def pop(self):
-		"""Removes first node from DLL
-			Returns:
-				ListNode
-		"""
-		node = self.sentinel.next
-		self.sentinel.next = node.next
-		node.next.last = self.sentinel
-
-		return node
-
-	def pull(self):
-		"""Removes last node from DLL
-			Returns:
-				ListNode
-		"""
-		node = self.sentinel.last
-		self.sentinel.last = node.last
-		node.last.next = self.sentinel
-
-		return node
-
-	def peek(self):
-		"""Returns first node in list"""
-		return sentinel.next
-
-
 class Assembler:
 	
 	def __init__(self, filename, k):
 
 		self.graph = Graph()
-		self.dll = DLL()
 
 		#loads file
 		reads = Loader.load(filename)
@@ -109,49 +41,41 @@ class Assembler:
 					node1 = self.graph.lookup(kmer[:k-1])
 					node2 = self.graph.lookup(kmer[1:])
 					edge = self.graph.new_edge(node1, node2, kmer)
-					self.dll.append(ListNode(edge))
 
 	def eulerian_path(self):
 		"""Constructs a eulerian
 			path on the graph using
 			Heirholzer's algorithm
 		"""
-		currentPath = DLL()
-		finalPath = DLL()
+		# init
+		currentPath = []
+		finalPath = []
+		print self.graph.nodeDict["AT"]
+		edge = self.graph.get_unvisited(self.graph.nodeDict["AT"])
+		# add all edges to stack in linear fashion
+		while edge != None:
+			edge.visited = True
+			currentPath.append(edge)
+			edge = self.graph.get_unvisited(edge[1]) # next node/edge
+		# get all other unvisted and construct final path
+		while len(currentPath) > 0:
+			edge = currentPath.pop()
+			finalPath.append(edge)
+			edge = self.graph.get_unvisited(edge[0]) # previous node/edge
+			# loop for unvisited edges again
+			while edge != None:
+				edge.visited = True
+				currentPath.append(edge)
+				edge = self.graph.get_unvisited(edge[1]) # next node/edge
 
-		start = ListNode(self.graph.nodeList[0])
-		current = start
-		currentPath.append(start)
-
-		
-
-		# loop until cycle back
-		# i = 0
-		# while not currentPath.isEmpty():
-		# 	print i
-		# 	i += 1
-		# 	while len(current.contents.outgoing) == 0:
-		# 		print "while"
-		# 		node = currentPath.pull()
-		# 		current = node.last
-		# 		start = current
-		# 		finalPath.append(node)
-		# 	if len(current.contents.outgoing) == 1 and \
-		# 			current.contents.outgoing[0] == start.contents:
-		# 		print "if"
-		# 		current.contents.outgoing.remove(start.contents)
-		# 	else:
-		# 		print "else"
-		# 		graphNode = current.contents.outgoing[0]
-		# 		current.contents.outgoing.remove(graphNode)
-		# 		current = ListNode(graphNode)
-		# 		currentPath.append(current)
-
-		# print result
-		current = finalPath.pop()
-		while not finalPath.isEmpty():
-			sequence += current.contents.contents[0]
-			current = finalPath.pop()
+		# print result by appending to front
+		sequence = ''
+		while len(finalPath) > 0:
+			edge = finalPath.pop()
+			if len(finalPath) == 0: # last edge
+				sequence += edge.contents # add all
+			else:
+				sequence += edge.contents[0] # add first only
 
 		return sequence
 
