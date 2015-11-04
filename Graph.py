@@ -91,7 +91,6 @@ class Graph:
 		self.nodeDict = {} # lookup by contents
 		self.edgeList = []
 		self.edgeDict = {} # lookup by starting vert
-		self.visited = False
 
 	def __str__(self):
 		"""Print out nodes and 

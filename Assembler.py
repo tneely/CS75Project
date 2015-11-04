@@ -20,8 +20,8 @@ from Loader import Loader
 
 class ListNode:
 
-	def __init__(self, content = None, next=None, last=None):
-		self.content = content
+	def __init__(self, contents = None, next=None, last=None):
+		self.contents = contents
 		self.next = next
 		self.last = last
 
@@ -30,28 +30,34 @@ class ListNode:
 class DLL:
 
 	def __init__(self):
-		self.sentinel = ListNode
+		self.sentinel = ListNode()
 		self.sentinel.next = self.sentinel
 		self.sentinel.last = self.sentinel
 
-	def append(node):
+	def isEmpty(self):
+		if self.sentinel.next == self.sentinel:
+			return True
+		else:
+			return False
+
+	def append(self, node):
 		node.last = self.sentinel.last
 		node.next = self.sentinel
 		self.sentinel.last.next = node
 		self.sentinel.last = node
 
-	def remove(node):
+	def remove(self, node):
 		node.last.next = node.next
 		node.next.last = node.last
 
-	def insert(node1, node2):
+	def insert(self, node1, node2):
 		"""Places node1 after node2"""
 		node1.last = node2
 		node1.next = node2.next
 		node2.next.last = node1
 		node2.next = node1
 
-	def pop():
+	def pop(self):
 		"""Removes first node from DLL
 			Returns:
 				ListNode
@@ -61,6 +67,21 @@ class DLL:
 		node.next.last = self.sentinel
 
 		return node
+
+	def pull(self):
+		"""Removes last node from DLL
+			Returns:
+				ListNode
+		"""
+		node = self.sentinel.last
+		self.sentinel.last = node.last
+		node.last.next = self.sentinel
+
+		return node
+
+	def peek(self):
+		"""Returns first node in list"""
+		return sentinel.next
 
 
 class Assembler:
@@ -87,20 +108,53 @@ class Assembler:
 				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
 					node1 = self.graph.lookup(kmer[:k-1])
 					node2 = self.graph.lookup(kmer[1:])
-					self.graph.new_edge(node1, node2, kmer)
-					self.dll.append(ListNode(kmer))
+					edge = self.graph.new_edge(node1, node2, kmer)
+					self.dll.append(ListNode(edge))
 
 	def eulerian_path(self):
 		"""Constructs a eulerian
 			path on the graph using
 			Heirholzer's algorithm
 		"""
-		edge = self.dll.pop()
-		start = edge[0]
-		next = edge[1]
+		currentPath = DLL()
+		finalPath = DLL()
+
+		start = ListNode(self.graph.nodeList[0])
+		current = start
+		currentPath.append(start)
+
+		
 
 		# loop until cycle back
-		while next != start:
+		# i = 0
+		# while not currentPath.isEmpty():
+		# 	print i
+		# 	i += 1
+		# 	while len(current.contents.outgoing) == 0:
+		# 		print "while"
+		# 		node = currentPath.pull()
+		# 		current = node.last
+		# 		start = current
+		# 		finalPath.append(node)
+		# 	if len(current.contents.outgoing) == 1 and \
+		# 			current.contents.outgoing[0] == start.contents:
+		# 		print "if"
+		# 		current.contents.outgoing.remove(start.contents)
+		# 	else:
+		# 		print "else"
+		# 		graphNode = current.contents.outgoing[0]
+		# 		current.contents.outgoing.remove(graphNode)
+		# 		current = ListNode(graphNode)
+		# 		currentPath.append(current)
+
+		# print result
+		current = finalPath.pop()
+		while not finalPath.isEmpty():
+			sequence += current.contents.contents[0]
+			current = finalPath.pop()
+
+		return sequence
+
 
 
 
