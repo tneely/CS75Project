@@ -21,7 +21,7 @@ Python version: 2.7
 ### NODE CLASS ###
 class Node:
 
-	def __init__(self, contents): # Not sure what the best way to track adj is, within node or in edge class?
+	def __init__(self, contents):
 		self.contents = contents
 		self.outgoing = []
 		self.incoming = []
