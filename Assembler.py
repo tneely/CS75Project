@@ -25,22 +25,68 @@ class Assembler:
 
 		#loads file
 		reads = Loader.load(filename)
-		# create set of possible nodes
-		nodeSet = set()
-		for read in reads:
-			for i in range(len(read)-(k-1)+1):
-				nodeSet.add(read[i:i+(k-1)])
-		# create nodes
-		for kmer in nodeSet:
-			self.graph.new_node(kmer)
-		# create edges
+		# get kmers, k-1mers as edges, nodes
 		for read in reads:
 			for i in range(len(read)-k+1):
 				kmer = read[i:i+k]
-				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
-					node1 = self.graph.lookup(kmer[:k-1]) #prefix
-					node2 = self.graph.lookup(kmer[1:]) #suffix
-					edge = self.graph.new_edge(node1, node2, kmer)
+				prefix = kmer[:k-1]
+				suffix = kmer[1:]
+				# get/create prefix node
+				if prefix in self.graph.nodeDict:
+					pNode = self.graph.nodeDict[prefix]
+				else:
+					pNode = self.graph.new_node(prefix)
+				# get/create suffix node
+				if suffix in self.graph.nodeDict:
+					sNode = self.graph.nodeDict[suffix]
+				else:
+					sNode = self.graph.new_node(suffix)
+				# create edge
+				self.graph.new_edge(pNode, sNode, kmer)
+		
+
+	def is_eulerian(self):
+		"""Checks whether or not the graph is eulerian"""
+		# count semi-balanced nodes (|indegree - outdegree| = 1)
+		semis = 0
+		for node in self.graph.nodeList:
+			diff = abs(len(node.outgoing)-len(node.incoming))
+			# if not balanced or semi-balanced, it is not euler
+			if diff > 1:
+				return False
+			elif diff == 1:
+				semis += 1
+		# not eulerian if more than 2 semi-balanced nodes
+		if semis > 2:
+			return False
+
+		return True
+
+	def balance(self):
+		"""Connects semi-balanced nodes to eachother
+			This function only works if the graph is eulerian!
+			Returns False if failed. Returns True on success.
+		"""
+		# find unbalanced nodes
+		semis = []
+		for node in self.graph.nodeList:
+			diff = abs(len(node.outgoing)-len(node.incoming))
+			if diff == 1:
+				semis += [node]
+		# can we do it?
+		if len(semis) != 2:
+			print("Too many unbalanced: %i. The graph is not eulerian.")%len(semis)
+			return False
+		# find balance
+		if len(semis[0].incoming) > len(semis[0].outgoing): # e.g. needs an outgoing to balance
+			# 0 -> 1
+			self.graph.new_edge(semis[0], semis[1], semis[0].contents)
+		else:
+			# 1 -> 0
+			self.graph.new_edge(semis[1], semis[0], semis[1].contents)
+		# balance found
+		return True
+
 
 	def eulerian_path(self):
 		"""Constructs a eulerian
@@ -50,8 +96,14 @@ class Assembler:
 		# init
 		currentPath = []
 		finalPath = []
-		print self.graph.nodeDict["AT"]
-		edge = self.graph.get_unvisited(self.graph.nodeDict["AT"])
+		# try to start on semi-balanced with less incoming
+		edge = None
+		for node in self.graph.nodeList:
+			diff = abs(len(node.outgoing)-len(node.incoming))
+			if diff == 1 and len(node.incoming) < len(node.outgoing):
+				edge = self.graph.get_unvisited(node)
+		# just pick first if failed
+		if not edge: edge = self.graph.get_unvisited(self.graph.nodeList[0])
 		# add all edges to stack in linear fashion
 		while edge != None:
 			edge.visited = True
