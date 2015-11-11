@@ -25,22 +25,25 @@ class Assembler:
 
 		#loads file
 		reads = Loader.load(filename)
-		# create set of possible nodes
-		nodeSet = set()
-		for read in reads:
-			for i in range(len(read)-(k-1)+1):
-				nodeSet.add(read[i:i+(k-1)])
-		# create nodes
-		for kmer in nodeSet:
-			self.graph.new_node(kmer)
-		# create edges
+		# get kmers, k-1mers as edges, nodes
 		for read in reads:
 			for i in range(len(read)-k+1):
 				kmer = read[i:i+k]
-				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
-					node1 = self.graph.lookup(kmer[:k-1])
-					node2 = self.graph.lookup(kmer[1:])
-					edge = self.graph.new_edge(node1, node2, kmer)
+				prefix = kmer[:k-1]
+				suffix = kmer[1:]
+				# get/create prefix node
+				if prefix in self.graph.nodeDict:
+					pNode = self.graph.nodeDict[prefix]
+				else:
+					pNode = self.graph.new_node(prefix)
+				# get/create suffix node
+				if suffix in self.graph.nodeDict:
+					sNode = self.graph.nodeDict[suffix]
+				else:
+					sNode = self.graph.new_node(suffix)
+				# create edge
+				self.graph.new_edge(pNode, sNode, kmer)
+		
 
 	def eulerian_path(self):
 		"""Constructs a eulerian
@@ -71,6 +74,7 @@ class Assembler:
 		sequence = ''
 		while len(finalPath) > 0:
 			edge = finalPath.pop()
+			print edge
 			if len(finalPath) == 0: # last edge
 				sequence += edge.contents # add all
 			else:
