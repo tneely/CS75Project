@@ -38,8 +38,8 @@ class Assembler:
 			for i in range(len(read)-k+1):
 				kmer = read[i:i+k]
 				if kmer[:k-1] in nodeSet and kmer[1:] in nodeSet:
-					node1 = self.graph.lookup(kmer[:k-1])
-					node2 = self.graph.lookup(kmer[1:])
+					node1 = self.graph.lookup(kmer[:k-1]) #prefix
+					node2 = self.graph.lookup(kmer[1:]) #suffix
 					edge = self.graph.new_edge(node1, node2, kmer)
 
 	def eulerian_path(self):
