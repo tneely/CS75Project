@@ -45,6 +45,49 @@ class Assembler:
 				self.graph.new_edge(pNode, sNode, kmer)
 		
 
+	def is_eulerian(self):
+		"""Checks whether or not the graph is eulerian"""
+		# count semi-balanced nodes (|indegree - outdegree| = 1)
+		semis = 0
+		for node in self.graph.nodeList:
+			diff = abs(len(node.outgoing)-len(node.incoming))
+			# if not balanced or semi-balanced, it is not euler
+			if diff > 1:
+				return False
+			elif diff == 1:
+				semis += 1
+		# not eulerian if more than 2 semi-balanced nodes
+		if semis > 2:
+			return False
+
+		return True
+
+	def balance(self):
+		"""Connects semi-balanced nodes to eachother
+			This function only works if the graph is eulerian!
+			Returns False if failed. Returns True on success.
+		"""
+		# find unbalanced nodes
+		semis = []
+		for node in self.graph.nodeList:
+			diff = abs(len(node.outgoing)-len(node.incoming))
+			if diff == 1:
+				semis += [node]
+		# can we do it?
+		if len(semis) != 2:
+			print("Too many unbalanced: %i. The graph is not eulerian.")%len(semis)
+			return False
+		# find balance
+		if len(semis[0].incoming) > len(semis[0].outgoing): # e.g. needs an outgoing to balance
+			# 0 -> 1
+			self.graph.new_edge(semis[0], semis[1], semis[0].contents)
+		else:
+			# 1 -> 0
+			self.graph.new_edge(semis[1], semis[0], semis[1].contents)
+		# balance found
+		return True
+
+
 	def eulerian_path(self):
 		"""Constructs a eulerian
 			path on the graph using
@@ -53,7 +96,14 @@ class Assembler:
 		# init
 		currentPath = []
 		finalPath = []
-		edge = self.graph.get_unvisited(self.graph.nodeList[0])
+		# try to start on semi-balanced with less incoming
+		edge = None
+		for node in self.graph.nodeList:
+			diff = abs(len(node.outgoing)-len(node.incoming))
+			if diff == 1 and len(node.incoming) < len(node.outgoing):
+				edge = self.graph.get_unvisited(node)
+		# just pick first if failed
+		if not edge: edge = self.graph.get_unvisited(self.graph.nodeList[0])
 		# add all edges to stack in linear fashion
 		while edge != None:
 			edge.visited = True
@@ -74,7 +124,6 @@ class Assembler:
 		sequence = ''
 		while len(finalPath) > 0:
 			edge = finalPath.pop()
-			print edge
 			if len(finalPath) == 0: # last edge
 				sequence += edge.contents # add all
 			else:
