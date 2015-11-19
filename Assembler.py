@@ -13,6 +13,7 @@ Python version: 2.7
 ###############
 from Graph import *
 from Loader import Loader
+import sys
 
 ############
 ### CODE ###
@@ -144,7 +145,9 @@ class Assembler:
 
 # Command-line driver for assembly
 if __name__ == '__main__':
-	filename = argv[1]
-	k = argv[2]
-	assembly = Assembler(filename, k)
-	assembly.assemble()
+	filename = sys.argv[1]
+	k = sys.argv[2]
+	assembly = Assembler(filename, int(k))
+	assembly.make_superpath()
+	print assembly.graph
+	assembly.eulerian_path()
