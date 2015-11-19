@@ -258,6 +258,10 @@ class Graph:
 		inNode = x.inNode
 		midNode = x.outNode
 		outNode = y.outNode
+		# sanity check
+		if inNode == outNode:
+			print x, y
+			print inNode, outNode
 		#make sure nodes are still live
 		if len(inNode.outEdges) == 0 or len(midNode.inEdges) == 0 or \
 			len(midNode.outEdges) == 0 or len(outNode.inEdges) == 0:
@@ -276,34 +280,36 @@ class Graph:
 
 		return z
 
-	def is_mergeable(self, x, y): #x is an edge1, y is edge2
-	    # for in_node in x.in_nodes: # if x is a curl edge, but don't wanna count it if there are still others
-	    #     for out_node in x.out_nodes:
-	    #         if in_node == out_node:
-	    #             return False
-	    # for in_node in y.in_nodes: #if y is a curl edge
-	    #     for out_node in y.out_nodes:
-	    #         if in_node == out_node:
-	    #             return False
-	    freqDictx = {}
-	    freqDicty = {}
-	    for read in x.reads:
-	        if freqDictx.has_key(read.id):
-	            freqDictx[read.id] += 1
-	        else:
-	            freqDictx[read.id] = 1
-	    for read in y.reads:
-	        if freqDicty.has_key(read.id):
-	            freqDicty[read.id] += 1
-	        else:
-	            freqDicty[read.id] = 1
-	    for idnum in freqDictx:
-	        if idnum in freqDicty and freqDictx[idnum] != freqDicty[idnum]:#if the number of a certain read in x does not equal amount for same read in y
-	            return False
-	    for read in x.reads: #if a path starts in x
-	        if x == read[0]:
-	            return False
-	    return True
+	def is_mergeable(self, x, y, skipCurls): #x is an edge1, y is edge2
+		#skip curl edges
+		# if skipCurls:
+		# 	for read in self.readList:
+		# 		freqs = {x:0, y:0}
+		# 		for edge in read.edges:
+		# 			if edge in freqs:
+		# 				freqs[edge] += 1
+		# 		if freqs[x] > 1 or freqs[y] > 1:
+		# 			print "oops"
+		# 			return False
+		freqDictx = {}
+		freqDicty = {}
+		for read in x.reads:
+			if freqDictx.has_key(read.id):
+				freqDictx[read.id] += 1
+			else:
+				freqDictx[read.id] = 1
+		for read in y.reads:
+			if freqDicty.has_key(read.id):
+				freqDicty[read.id] += 1
+			else:
+				freqDicty[read.id] = 1
+		for idnum in freqDictx:
+			if idnum in freqDicty and freqDictx[idnum] != freqDicty[idnum]:#if the number of a certain read in x does not equal amount for same read in y
+				return False
+		for read in x.reads: #if a path starts in x
+			if x == read[0]:
+				return False
+		return True
 
 	def clean(self):
 		"""Removes stray edges and 
@@ -322,6 +328,10 @@ class Graph:
 		toRemove = []
 		for edge in self.edgeList:
 			if len(edge.reads) == 0:
+				toRemove.append(edge)
+			elif edge.inNode not in self.nodeList:
+				toRemove.append(edge)
+			elif edge.outNode not in self.nodeList:
 				toRemove.append(edge)
 		#remove
 		for edge in toRemove:

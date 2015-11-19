@@ -29,18 +29,26 @@ class Assembler:
 	
 	def make_superpath(self):
 		"""loops to make superpaths in graph"""
-		mergable = True
-		while mergable:
-			mergable = False
-			for node in self.graph.nodeList:
+		# try without curls
+		while self.superpath_helper(True):
+			self.graph.clean()
+		# try with curls
+		while self.superpath_helper(False):
+			self.graph.clean()
+		self.graph.clean()
+
+	def superpath_helper(self, skipCurls):
+		"""Does actual mergine"""
+		for node in self.graph.nodeList:
 				for x in node.inEdges:
 					for y in node.outEdges:
 						#check if edges can be merged
-						if self.graph.is_mergeable(x,y):
-							self.graph.merge(x,y)
-							mergable = True
+						if self.graph.is_mergeable(x,y,skipCurls):
+							#make sure merge worked
+							if self.graph.merge(x,y):
+								return True
 
-		self.graph.clean()
+		return False
 
 	def is_eulerian(self):
 		"""Checks whether or not the graph is eulerian"""
