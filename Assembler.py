@@ -2,7 +2,7 @@
 File name: Assembler.py
 Info: CS75 Final Project
 Authors: Stephanie Her, Lauren Mitchell, 
-		Taylor Neely, and Erin Connolly
+        Taylor Neely, and Erin Connolly
 Date created: 30/10/2015
 Date last modified: 30/10/2015
 Python version: 2.7
@@ -37,13 +37,13 @@ class Assembler:
             self.graph.clean()
         self.graph.clean()
 
-    def superpath_helper(self, skipCurls):
+    def superpath_helper(self, linear):
         """Does actual mergine"""
         for node in self.graph.nodeList:
             for x in node.inEdges:
                 for y in node.outEdges:
                     #check if edges can be merged
-                    if self.graph.is_mergeable(x,y,skipCurls):
+                    if self.graph.is_mergeable(x,y,linear):
                         #make sure merge worked
                         if self.graph.merge(x,y):
                             return True

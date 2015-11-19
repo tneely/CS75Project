@@ -2,7 +2,7 @@
 File name: Graph.py
 Info: CS75 Final Project
 Authors: Stephanie Her, Lauren Mitchell, 
-		Taylor Neely, and Erin Connolly
+        Taylor Neely, and Erin Connolly
 Date created: 30/10/2015
 Date last modified: 30/10/2015
 Python version: 2.7
@@ -116,7 +116,8 @@ class Read:
             #add read to new edge
             z.reads.append(self)
             #remove read from edge
-            x.reads.remove(self)
+            if self in x.reads:
+                x.reads.remove(self)
             return True
         return False
 
@@ -132,7 +133,8 @@ class Read:
             #add read to new edge
             z.reads.append(self)
             #remove read from edge
-            y.reads.remove(self)
+            if self in y.reads:
+                y.reads.remove(self)
             return True
         return False
 
@@ -154,8 +156,10 @@ class Read:
                 #add read to new edge
                 z.reads.append(self)
                 #remove read from edge
-                x.reads.remove(self)
-                y.reads.remove(self)
+                if self in x.reads:
+                    x.reads.remove(self)
+                if self in y.reads:
+                    y.reads.remove(self)
 
         return foundXY
 
@@ -182,6 +186,7 @@ class Graph:
         self.edgeList = []
         self.edgeDict = {} # lookup by contents
         self.readList = []
+        self.k = k
 
         for s in range(len(seqs)):
             #get seq
@@ -258,19 +263,19 @@ class Graph:
         inNode = x.inNode
         midNode = x.outNode
         outNode = y.outNode
-        # sanity check
-        if inNode == outNode:
-            print x, y
-            print inNode, outNode
         #make sure nodes are still live
         if len(inNode.outEdges) == 0 or len(midNode.inEdges) == 0 or \
             len(midNode.outEdges) == 0 or len(outNode.inEdges) == 0:
             return None
         #get new sequence for edge
-        seq = x.sequence + y.sequence[-1]
+        yLen = len(y.sequence)
+        seq = x.sequence + y.sequence[self.k-1:]
+        # print x.sequence, y.sequence, seq
         #create new edge
         z = self.new_edge(inNode, outNode, seq)
         #update nodes, paths
+        print inNode,midNode,outNode
+        print x,y
         inNode.outEdges.remove(x)
         midNode.inEdges.remove(x)
         midNode.outEdges.remove(y)
@@ -280,36 +285,57 @@ class Graph:
 
         return z
 
-    def is_mergeable(self, x, y, skipCurls): #x is an edge1, y is edge2
-        #skip curl edges
-        # if skipCurls:
-        # 	for read in self.readList:
-        # 		freqs = {x:0, y:0}
-        # 		for edge in read.edges:
-        # 			if edge in freqs:
-        # 				freqs[edge] += 1
-        # 		if freqs[x] > 1 or freqs[y] > 1:
-        # 			print "oops"
-        # 			return False
-        freqDictx = {}
-        freqDicty = {}
-        for read in x.reads:
-            if freqDictx.has_key(read.id):
-                freqDictx[read.id] += 1
-            else:
-                freqDictx[read.id] = 1
-        for read in y.reads:
-            if freqDicty.has_key(read.id):
-                freqDicty[read.id] += 1
-            else:
-                freqDicty[read.id] = 1
-        for idnum in freqDictx:
-            if idnum in freqDicty and freqDictx[idnum] != freqDicty[idnum]:#if the number of a certain read in x does not equal amount for same read in y
-                return False
-        for read in x.reads: #if a path starts in x
-            if x == read[0]:
-                return False
-        return True
+    def is_mergeable(self, x, y, linear): #x is an edge1, y is edge2
+        #check if repeat
+        if len(x.reads) == 1 and len(y.reads) == 1 and len(x.inNode.inEdges) == 1 \
+            and len(x.inNode.outEdges) == 1 and len(x.outNode.inEdges) == 1 \
+            and len(x.outNode.outEdges) == 1 and len(y.outNode.inEdges) == 1 \
+            and len(y.outNode.outEdges) == 1:
+            # its not a repeat, mergable
+            return True
+        elif linear:
+            return False # its a repeat, so not linear
+        else: #its a repeat
+            # is there a read that spans x and y?
+            isSpanned = False
+            for read in x.reads:
+                if read in y.reads:
+                    print "spanned"
+                    isSpanned = True
+            # is there a read that contains conflicting information?
+            isConflicted = False
+            for read in x.reads:
+                # make sure read in y
+                if read not in y.reads:
+                    continue
+                # look to see if y not after x
+                for edgeInd in range(len(read.edges)-1):
+                    if read.edges[edgeInd] == x and \
+                        read.edges[edgeInd+1] != y:
+                        print "conflicted"
+                        isConflicted = True
+
+            return isSpanned and not isConflicted
+
+           #  freqDictx = {}
+           #  freqDicty = {}
+           #  for read in x.reads:
+           #      if freqDictx.has_key(read.id):
+           #          freqDictx[read.id] += 1
+           #      else:
+           #          freqDictx[read.id] = 1
+           #  for read in y.reads:
+           #      if freqDicty.has_key(read.id):
+           #          freqDicty[read.id] += 1
+           #      else:
+           #          freqDicty[read.id] = 1
+           #  for idnum in freqDictx:
+           #      if idnum in freqDicty and freqDictx[idnum] != freqDicty[idnum]:#if the number of a certain read in x does not equal amount for same read in y
+           #          return False
+           #  for read in x.reads: #if a path starts in x
+           #      if x == read[0]:
+           #          return False
+           #  return True
 
     def clean(self):
         """Removes stray edges and
