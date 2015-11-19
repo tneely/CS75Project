@@ -82,4 +82,4 @@ class Loader:
 
     def __str__(self): #useless?
         """The list of reads"""
-        return "".join(self.reads)
+        return "".join(str(self.reads))

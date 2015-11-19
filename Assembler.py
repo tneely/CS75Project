@@ -11,7 +11,7 @@ Python version: 2.7
 ###############
 ### IMPORTS ###
 ###############
-from Graph import Graph
+from Graph import *
 from Loader import Loader
 
 ############
@@ -21,29 +21,30 @@ class Assembler:
 	
 	def __init__(self, filename, k):
 
-		self.graph = Graph()
-
 		#loads file
 		reads = Loader.load(filename)
-		# get kmers, k-1mers as edges, nodes
-		for read in reads:
-			for i in range(len(read)-k+1):
-				kmer = read[i:i+k]
-				prefix = kmer[:k-1]
-				suffix = kmer[1:]
-				# get/create prefix node
-				if prefix in self.graph.nodeDict:
-					pNode = self.graph.nodeDict[prefix]
-				else:
-					pNode = self.graph.new_node(prefix)
-				# get/create suffix node
-				if suffix in self.graph.nodeDict:
-					sNode = self.graph.nodeDict[suffix]
-				else:
-					sNode = self.graph.new_node(suffix)
-				# create edge
-				self.graph.new_edge(pNode, sNode, kmer)
-		
+		#gets graph
+		self.graph = Graph(reads, k)
+		self.k = k
+	
+	def make_superpath(self):
+		"""loops to make superpaths in graph"""
+		mergable = True
+		while mergable:
+			mergable = False
+			found = False
+			for x in self.graph.edgeList:
+				if found: break
+				for y in self.graph.edgeList:
+					if found: break
+					#check if edges are adjacent
+					if y in x.outNode.outEdges:
+						#check if edges can be merged
+						if self.graph.is_mergeable(x,y):
+							self.graph.merge(x,y)
+							found = True
+
+		self.graph.clean()
 
 	def is_eulerian(self):
 		"""Checks whether or not the graph is eulerian"""
@@ -99,35 +100,37 @@ class Assembler:
 		# try to start on semi-balanced with less incoming
 		edge = None
 		for node in self.graph.nodeList:
-			diff = abs(len(node.outgoing)-len(node.incoming))
-			if diff == 1 and len(node.incoming) < len(node.outgoing):
+			diff = abs(len(node.outEdges)-len(node.inEdges))
+			if diff == 1 and len(node.inEdges) < len(node.outEdges):
 				edge = self.graph.get_unvisited(node)
 		# just pick first if failed
 		if not edge: edge = self.graph.get_unvisited(self.graph.nodeList[0])
 		# add all edges to stack in linear fashion
 		while edge != None:
+			print edge
 			edge.visited = True
 			currentPath.append(edge)
-			edge = self.graph.get_unvisited(edge[1]) # next node/edge
+			edge = self.graph.get_unvisited(edge.outNode) # next node/edge
 		# get all other unvisted and construct final path
 		while len(currentPath) > 0:
 			edge = currentPath.pop()
 			finalPath.append(edge)
-			edge = self.graph.get_unvisited(edge[0]) # previous node/edge
+			edge = self.graph.get_unvisited(edge.inNode) # previous node/edge
 			# loop for unvisited edges again
 			while edge != None:
 				edge.visited = True
 				currentPath.append(edge)
-				edge = self.graph.get_unvisited(edge[1]) # next node/edge
+				edge = self.graph.get_unvisited(edge.outNode) # next node/edge
 
 		# print result by appending to front
 		sequence = ''
 		while len(finalPath) > 0:
 			edge = finalPath.pop()
 			if len(finalPath) == 0: # last edge
-				sequence += edge.contents # add all
+				sequence += edge.sequence # add all
 			else:
-				sequence += edge.contents[0] # add first only
+				sLen = len(edge.sequence)
+				sequence += edge.sequence[:sLen-self.k+1] # add first only
 
 		return sequence
 

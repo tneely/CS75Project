@@ -21,37 +21,37 @@ Python version: 2.7
 ### NODE CLASS ###
 class Node:
 
-	def __init__(self, contents):
-		self.contents = contents
-		self.outgoing = []
-		self.incoming = []
+	def __init__(self, sequence):
+		self.sequence = sequence
+		self.inEdges = []
+		self.outEdges = []
 
 	def __getitem__(self, n):
-		"""The nth adjacent node in
-			the adjacents list
+		"""The nth letter in the
+			sequence
 			Returns:
-				Object: Node
+				String
 		"""
-		return self.adjacents[pos]
+		return self.sequence[pos]
 
 	def __len__(self):
-		"""The number of adjacent nodes
+		"""The length of the sequence
 			Returns:
 				int
 		"""
-		return len(self.adjacents)
+		return len(self.sequence)
 
 	def __str__(self):
 		"""The contents of the node"""
-		return self.contents
+		return self.sequence
 
-	def add_adj(self, other):
+	def add_outgoing(self, other, edge):
 		"""Adds other nodes to 
 			adjacent list of this
 			node, and vice versa
 		"""
-		self.outgoing.append(other)
-		other.incoming.append(self)
+		self.outEdges.append(edge)
+		other.inEdges.append(edge)
 ### NODE CLASS ###
 ##################
 
@@ -59,39 +59,162 @@ class Node:
 ### EDGE CLASS ###
 class Edge:
 
-	def __init__(self, node1, node2, contents = None):
-		self.contents = contents
-		self.adjacents = [node1, node2]
+	def __init__(self, inNode, outNode, sequence):
+		self.sequence = sequence
+		self.inNode = inNode
+		self.outNode = outNode
+		self.reads = []
 		self.visited = False
 
 	def __getitem__(self, n):
-		"""The nth adjacent node in
-			the adjacents list [0,1]
+		"""The nth letter in
+			the sequence
 			Returns:
-				Object: Node
+				String
 		"""
-		return self.adjacents[n]
+		return self.sequence[n]
 
 	def __len__(self):
 		"""The number of adjacents
 			Returns:
-				int (2)
+				int
 		"""
-		return len(self.adjacents)
+		return len(self.sequence)
 
 	def __str__(self):
 		"""The contents of the edge"""
-		return self.contents
+		return self.sequence
 ### EDGE CLASS ###
 ##################
 
+##################
+### READ CLASS ###
+class Read:
+
+	def __init__(self, sequence, idnum):
+		self.sequence = sequence
+		self.id = idnum
+		self.edges = []
+
+	def __getitem__(self, n):
+		"""The nth edge in
+			the edge list
+			Returns:
+				edge
+		"""
+		return self.edges[n]
+
+	def change_x(self, x, z):
+		"""Changes the last edge in edges
+			to new z edge if x is that last edge
+			Adjusts edges involved
+			Returns:
+				True if changed, false otherwise
+		"""
+		if self.edges[-1] == x:
+			self.edges[-1] = z
+			#add read to new edge
+			z.reads.append(self)
+			#remove read from edge
+			x.reads.remove(self)
+			return True
+		return False
+
+	def change_y(self, y, z):
+		"""Changes the first edge in edges
+			to new z edge if y is that first edge
+			Adjusts edges involved
+			Returns:
+				True if changed, false otherwise
+		"""
+		if self.edges[0] == y:
+			self.edges[0] = z
+			#add read to new edge
+			z.reads.append(self)
+			#remove read from edge
+			y.reads.remove(self)
+			return True
+		return False
+
+	def change_xy(self, x, y, z):
+		"""Changes consecutive x,y edges in path.
+			Adjusts edges involved
+			Returns:
+				True if changed, false otherwise
+		"""
+		foundXY = False
+		# look for all xy pairs
+		for i in range(len(self.edges)-1):
+			# if pair found...
+			if self.edges[i] == x and self.edges[i+1] == y:
+				foundXY = True
+				# add z, remove x,y
+				self.edges[i] == z
+				del self.edges[i+1]
+				#add read to new edge
+				z.reads.append(self)
+				#remove read from edge
+				x.reads.remove(self)
+				y.reads.remove(self)
+
+		return foundXY
+
+	def update(self, x, y, z):
+		"""Runs all change functions
+			Adjusts edges involved
+			Returns:
+				True if any changed, false otherwise
+		"""
+		# compute each separately to avoid short circuit
+		changed = [self.change_xy(x,y,z), self.change_x(x,z), self.change_y(y,z)]
+		# return if any changed
+		return any(changed)
+### READ CLASS ###
+##################
 class Graph:
 
-	def __init__(self):
+	def __init__(self, seqs, k):
+		"""Takes reads from Loader and kmer 
+			length to initialize deBruijn Graph
+		"""
 		self.nodeList = []
 		self.nodeDict = {} # lookup by contents
 		self.edgeList = []
-		self.edgeDict = {} # lookup by starting vert
+		self.edgeDict = {} # lookup by contents
+		self.readList = []
+
+		for s in range(len(seqs)):
+			#get seq
+			seq = seqs[s]
+			# make read
+			read = Read(seq, s)
+			self.readList.append(read)
+			# make edges and nodes
+			for i in range(len(seq)-k+1):
+				#get info
+				kmer = seq[i:i+k]
+				prefix = kmer[:k-1]
+				suffix = kmer[1:]
+				# get/create prefix node
+				if prefix in self.nodeDict:
+					pNode = self.nodeDict[prefix]
+				else:
+					pNode = self.new_node(prefix)
+				# get/create suffix node
+				if suffix in self.nodeDict:
+					sNode = self.nodeDict[suffix]
+				else:
+					sNode = self.new_node(suffix)
+				# get/create edge
+				if kmer in self.edgeDict:
+					edge = self.edgeDict[kmer]
+				else:
+					edge = self.new_edge(pNode, sNode, kmer)
+				# expand read path
+				read.edges.append(edge)
+				# expand edge reads
+				edge.reads.append(read)
+
 
 	def __str__(self):
 		"""Print out nodes and 
@@ -99,45 +222,111 @@ class Graph:
 		"""
 		out = ""
 		for edge in self.edgeList:
-			out = out + str(edge) + ": " + str(edge[0]) + ", " + str(edge[1]) + "\n"
+			out = out + str(edge) + ": " + str(edge.inNode) + ", " + str(edge.outNode) + "\n"
 
 		return out
 
-	def new_node(self, contents):
-		node = Node(contents)
+	def new_node(self, sequence):
+		node = Node(sequence)
 		self.nodeList.append(node)
-		self.nodeDict[contents] = node
+		self.nodeDict[sequence] = node
 
 		return node
 
-	def new_edge(self, node1, node2, contents = None):
-		edge = Edge(node1, node2, contents)
+	def new_edge(self, inNode, outNode, sequence):
+		edge = Edge(inNode, outNode, sequence)
 		self.edgeList.append(edge)
-		node1.add_adj(node2)
-		if node1 in self.edgeDict:
-			self.edgeDict[node1].append(edge)
-		else:
-			self.edgeDict[node1] = [edge]
+		inNode.add_outgoing(outNode, edge)
+		self.edgeDict[sequence] = edge
 
 		return edge
 
+	"""UNSURE IF THIS STILL WORKS"""
 	def get_unvisited(self, node):
-		# check if node in dict (wont for last)
-		if node not in self.edgeDict:
-			return None
 		# get edges for node
-		edges = self.edgeDict[node]
-		for edge in edges:
+		for edge in node.outEdges:
 			if not edge.visited:
 				return edge
 		# couldn't find unvisited edge
 		return None
 
-	def del_node(self, node):
-		nodeList.remove(node)
+	def merge(self, x, y):
+		"""Merges two adjacents
+			edges, x and y.
+		"""
+		#get nodes involved
+		inNode = x.inNode
+		midNode = x.outNode
+		outNode = y.outNode
+		#make sure nodes are still live
+		if len(inNode.outEdges) == 0 or len(midNode.inEdges) == 0 or \
+			len(midNode.outEdges) == 0 or len(outNode.inEdges) == 0:
+			return None
+		#get new sequence for edge
+		seq = x.sequence + y.sequence[-1]
+		#create new edge
+		z = self.new_edge(inNode, outNode, seq)
+		#update nodes, paths
+		inNode.outEdges.remove(x)
+		midNode.inEdges.remove(x)
+		midNode.outEdges.remove(y)
+		outNode.inEdges.remove(y)
+		for read in self.readList:
+			read.update(x,y,z)
 
-	def del_edge(self, edge):
-		edgeList.remove(edge)
+		return z
 
-	def lookup(self, contents):
-		return self.nodeDict[contents]
+	def is_mergeable(self, x, y): #x is an edge1, y is edge2
+	    # for in_node in x.in_nodes: # if x is a curl edge, but don't wanna count it if there are still others
+	    #     for out_node in x.out_nodes:
+	    #         if in_node == out_node:
+	    #             return False
+	    # for in_node in y.in_nodes: #if y is a curl edge
+	    #     for out_node in y.out_nodes:
+	    #         if in_node == out_node:
+	    #             return False
+	    freqDictx = {}
+	    freqDicty = {}
+	    for read in x.reads:
+	        if freqDictx.has_key(read.id):
+	            freqDictx[read.id] += 1
+	        else:
+	            freqDictx[read.id] = 1
+	    for read in y.reads:
+	        if freqDicty.has_key(read.id):
+	            freqDicty[read.id] += 1
+	        else:
+	            freqDicty[read.id] = 1
+	    for idnum in freqDictx:
+	        if idnum in freqDicty and freqDictx[idnum] != freqDicty[idnum]:#if the number of a certain read in x does not equal amount for same read in y
+	            return False
+	    for read in x.reads: #if a path starts in x
+	        if x == read[0]:
+	            return False
+	    return True
+
+	def clean(self):
+		"""Removes stray edges and 
+			nodes from the graph.
+		"""
+		#remove empty nodes
+		nDictRemovables = []
+		for seq in self.nodeDict:
+			node = self.nodeDict[seq]
+			if len(node.inEdges) == 0 and len(node.outEdges) == 0:
+				self.nodeList.remove(node)
+				nDictRemovables.append(seq)
+		# clean dict
+		for seq in nDictRemovables:
+			self.nodeDict.pop(seq, None)
+		#remove empty edges
+		eDictRemovables = []
+		for seq in self.edgeDict:
+			edge = self.edgeDict[seq]
+			if len(edge.reads):
+				self.edgeList.remove(edge)
+				eDictRemovables.append(seq)
+		# clean dict
+		for seq in eDictRemovables:
+			print "current"
+			self.edgeDict.pop(seq, None)
