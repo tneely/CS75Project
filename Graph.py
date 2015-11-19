@@ -310,23 +310,19 @@ class Graph:
 			nodes from the graph.
 		"""
 		#remove empty nodes
-		nDictRemovables = []
-		for seq in self.nodeDict:
-			node = self.nodeDict[seq]
+		toRemove = []
+		for node in self.nodeList:
 			if len(node.inEdges) == 0 and len(node.outEdges) == 0:
-				self.nodeList.remove(node)
-				nDictRemovables.append(seq)
-		# clean dict
-		for seq in nDictRemovables:
-			self.nodeDict.pop(seq, None)
+				toRemove.append(node)
+		#remove
+		for node in toRemove:
+			self.nodeList.remove(node)
+
 		#remove empty edges
-		eDictRemovables = []
-		for seq in self.edgeDict:
-			edge = self.edgeDict[seq]
-			if len(edge.reads):
-				self.edgeList.remove(edge)
-				eDictRemovables.append(seq)
-		# clean dict
-		for seq in eDictRemovables:
-			print "current"
-			self.edgeDict.pop(seq, None)
+		toRemove = []
+		for edge in self.edgeList:
+			if len(edge.reads) == 0:
+				toRemove.append(edge)
+		#remove
+		for edge in toRemove:
+			self.edgeList.remove(edge)

@@ -32,17 +32,13 @@ class Assembler:
 		mergable = True
 		while mergable:
 			mergable = False
-			found = False
-			for x in self.graph.edgeList:
-				if found: break
-				for y in self.graph.edgeList:
-					if found: break
-					#check if edges are adjacent
-					if y in x.outNode.outEdges:
+			for node in self.graph.nodeList:
+				for x in node.inEdges:
+					for y in node.outEdges:
 						#check if edges can be merged
 						if self.graph.is_mergeable(x,y):
 							self.graph.merge(x,y)
-							found = True
+							mergable = True
 
 		self.graph.clean()
 
