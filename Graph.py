@@ -276,10 +276,14 @@ class Graph:
         #update nodes, paths
         print inNode,midNode,outNode
         print x,y
-        inNode.outEdges.remove(x)
-        midNode.inEdges.remove(x)
-        midNode.outEdges.remove(y)
-        outNode.inEdges.remove(y)
+        if x in inNode.outEdges:
+            inNode.outEdges.remove(x)
+        if x in midNode.inEdges:
+            midNode.inEdges.remove(x)
+        if y in midNode.outEdges:
+            midNode.outEdges.remove(y)
+        if y in outNode.inEdges:
+            outNode.inEdges.remove(y)
         for read in self.readList:
             read.update(x,y,z)
 
@@ -296,6 +300,10 @@ class Graph:
         elif linear:
             return False # its a repeat, so not linear
         else: #its a repeat
+            # get preceeding edges
+            # if x.inNode:
+            #     preceeding = x.inNode.edges
+
             # is there a read that spans x and y?
             isSpanned = False
             for read in x.reads:
