@@ -19,30 +19,29 @@ import sys
 ### CODE ###
 ############
 class Assembler:
-	
-	def __init__(self, filename, k):
+    def __init__(self, filename, k):
 
-		#loads file
-		reads = Loader.load(filename)
-		#gets graph
-		self.graph = Graph(reads, k)
-		self.k = k
-	
-	def make_superpath(self):
-		"""loops to make superpaths in graph"""
-		# try without curls
-		while self.superpath_helper(True):
-			self.graph.clean()
-		# try with curls
-		while self.superpath_helper(False):
-			self.graph.clean()
-		self.graph.clean()
+        #loads file
+        reads = Loader.load(filename)
+        #gets graph
+        self.graph = Graph(reads, k)
+        self.k = k
 
-	def superpath_helper(self, skipCurls):
-		"""Does actual mergine"""
-		for node in self.graph.nodeList:
-				for x in node.inEdges:
-					for y in node.outEdges:
+    def make_superpath(self):
+        """loops to make superpaths in graph"""
+        # try without curls
+        while self.superpath_helper(True):
+            self.graph.clean()
+        # try with curls
+        while self.superpath_helper(False):
+            self.graph.clean()
+        self.graph.clean()
+
+    def superpath_helper(self, skipCurls):
+        """Does actual mergine"""
+        for node in self.graph.nodeList:
+            for x in node.inEdges:
+                for y in node.outEdges:
 						#check if edges can be merged
 						if self.graph.is_mergeable(x,y,skipCurls):
 							#make sure merge worked
