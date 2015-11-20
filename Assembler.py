@@ -160,8 +160,8 @@ def test_errorcorrection(filename, badfilename, k, threshold):
     grapherrors = Graph(reads2, k)
     results(graph.seqs, grapherrors.seqs, grapherrors.correctedseqs)
 
-test("data/simple.fastq", 6)
-test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobin.fastq", 3, 5)
+# test("data/simple.fastq", 6)
+# test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobin.fastq", 3, 5)
 
 
 # Command-line driver for assembly
