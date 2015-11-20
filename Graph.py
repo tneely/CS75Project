@@ -180,7 +180,7 @@ class Read:
 ##################
 class Graph:
 
-    def __init__(self, seqs, k):
+    def __init__(self, seqs, k, threshold=5):
         """Takes reads from Loader and kmer
             length to initialize deBruijn Graph
         """
@@ -191,6 +191,8 @@ class Graph:
         self.readList = []
         self.k = k
         self.seqs = seqs
+        self.threshold = threshold #for error correction
+        self.correctedseqs = self.error_correct(self.threshold)
 
         for s in range(len(seqs)):
             #get seq
@@ -488,7 +490,6 @@ class Graph:
                                             freqdict[read[kmersToChange + p]] = 1
                                     #read[kmersToChange + p] = read[kmersToChange + p].replace(read[kmersToChange + p][-p], choices[letter])
                                         #print read[kmersToChange + p]
-        self.seqs = seqlist
         return seqlist
 
 def results(original, start, end): #list of lists

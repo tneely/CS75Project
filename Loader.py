@@ -27,6 +27,8 @@ class Loader:
                 reads = Loader.load("file.fq")
         """
         self.reads = reads
+        print "Here are the reads!"
+        print reads
 
     @staticmethod
     def load(filename):
