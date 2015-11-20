@@ -152,8 +152,8 @@ class Read:
             if self.edges[i] == x and self.edges[i+1] == y:
                 foundXY = True
                 # add z, remove x,y
-                self.edges[i] == z
-                del self.edges[i+1]
+                self.edges[i] = z
+                self.edges[i+1] = None
                 #add read to new edge
                 z.reads.append(self)
                 #remove read from edge
@@ -161,6 +161,8 @@ class Read:
                     x.reads.remove(self)
                 if self in y.reads:
                     y.reads.remove(self)
+        #remove edges where edge = none
+        self.edges = [x for x in self.edges if x != None]
 
         return foundXY
 
@@ -291,39 +293,38 @@ class Graph:
 
         return z
 
-    def is_mergeable(self, x, y, linear): #x is an edge1, y is edge2
+    def is_mergeable(self, p, x, y, linear): #x is an edge1, y is edge2, p is preceding edge
         #check if repeat
-        if len(x.reads) == 1 and len(y.reads) == 1 and len(x.inNode.inEdges) == 1 \
-            and len(x.inNode.outEdges) == 1 and len(x.outNode.inEdges) == 1 \
-            and len(x.outNode.outEdges) == 1 and len(y.outNode.inEdges) == 1 \
-            and len(y.outNode.outEdges) == 1:
-            # its not a repeat, mergable
-            return True
-        elif linear:
-            return False # its a repeat, so not linear
-        else: #its a repeat
-            # get preceeding edges
-            # if x.inNode:
-            #     preceeding = x.inNode.edges
-
-            # is there a read that spans x and y?
-            isSpanned = False
-            for read in x.reads:
-                if read in y.reads:
-                    print "spanned"
-                    isSpanned = True
-            # is there a read that contains conflicting information?
-            isConflicted = False
-            for read in x.reads:
-                # make sure read in y
-                if read not in y.reads:
-                    continue
-                # look to see if y not after x
-                for edgeInd in range(len(read.edges)-1):
-                    if read.edges[edgeInd] == x and \
-                        read.edges[edgeInd+1] != y:
-                        print "conflicted"
-                        isConflicted = True
+        # if len(x.reads) == 1 and len(y.reads) == 1 and len(x.inNode.inEdges) == 1 \
+        #     and len(x.inNode.outEdges) == 1 and len(x.outNode.inEdges) == 1 \
+        #     and len(x.outNode.outEdges) == 1 and len(y.outNode.inEdges) == 1 \
+        #     and len(y.outNode.outEdges) == 1:
+        #     # its not a repeat, mergable
+        #     return True
+        # elif linear:
+        #     return False # its a repeat, so not linear
+        # else: #its a repeat
+        isSpanned = False
+        for read in x.reads:
+            if read in y.reads:
+                isSpanned = True
+        # is there a read that contains conflicting information?
+        isConflicted = False
+        for read in x.reads:
+            #starting from preceding, follow path
+            for i in range(len(read.edges)-2):
+                #look for x
+                if read.edges[i] == x:
+                    #matching start
+                    if (p == None and i == 0) or p == read.edges[i-1]:
+                        #conflicting end
+                        if y != read.edges[i+1]:
+                            isConflicted = True
+                    #conflicting start
+                    else:
+                        #matching end
+                        if y == read.edges[i+1]:
+                            isConflicted = True
 
             return isSpanned and not isConflicted
 

@@ -33,20 +33,27 @@ class Assembler:
         while self.superpath_helper(True):
             self.graph.clean()
         # try with curls
-        while self.superpath_helper(False):
-            self.graph.clean()
+        # while self.superpath_helper(False):
+        #     self.graph.clean()
         self.graph.clean()
 
     def superpath_helper(self, linear):
         """Does actual merging"""
-        for node in self.graph.nodeList:
-            for x in node.inEdges:
-                for y in node.outEdges:
-                    #check if edges can be merged
-                    if self.graph.is_mergeable(x,y,linear):
-                        #make sure merge worked
-                        if self.graph.merge(x,y):
-                            return True
+        for read in self.graph.readList:
+            for i in range(len(read.edges)-1):
+                #get preceding if possible
+                if i > 0:
+                    p = read.edges[i-1]
+                else:
+                    p = None
+                #get x,y
+                x = read.edges[i]
+                y = read.edges[i+1]
+                #check if edges can be merged
+                if self.graph.is_mergeable(p,x,y,linear):
+                    #make sure merge worked
+                    if self.graph.merge(x,y):
+                        return True
 
         return False
 
@@ -108,6 +115,7 @@ class Assembler:
             if diff == 1 and len(node.inEdges) < len(node.outEdges):
                 edge = self.graph.get_unvisited(node)
         # just pick first if failed
+        edge = None
         if not edge: edge = self.graph.get_unvisited(self.graph.nodeList[0])
         # add all edges to stack in linear fashion
         while edge != None:
