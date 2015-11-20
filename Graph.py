@@ -189,6 +189,9 @@ class Graph:
         self.readList = []
         self.k = k
         self.seqs = seqs
+        self.threshold = 5 #for error correction
+
+        self.error_correct(self.threshold)
 
         for s in range(len(seqs)):
             #get seq
@@ -487,10 +490,10 @@ class Graph:
                                             freqdict[read[kmersToChange + p]] = 1
                                     #read[kmersToChange + p] = read[kmersToChange + p].replace(read[kmersToChange + p][-p], choices[letter])
                                         #print read[kmersToChange + p]
-        self.seqs = seqlist
+        self.correctedseqs = seqlist
         return seqlist
 
-def results(original, start, end): #list of lists
+def results(self, original, start, end): #list of lists
     total_kmers = 0.0
     originalerrors = 0.0
     correctederrors = 0.0
