@@ -38,7 +38,7 @@ class Assembler:
         self.graph.clean()
 
     def superpath_helper(self, linear):
-        """Does actual mergine"""
+        """Does actual merging"""
         for node in self.graph.nodeList:
             for x in node.inEdges:
                 for y in node.outEdges:
