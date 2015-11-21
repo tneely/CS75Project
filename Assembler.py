@@ -155,20 +155,20 @@ def test_errorcorrection(filename, badfilename, k, threshold):
     grapherrors = Graph(reads2, int(k), threshold)
     results(graph.kmers, grapherrors.kmers, grapherrors.correctedseqs)
 
-def final_test(filename, k):
-    assembly = Assembler(filename, int(k))
-    assembly.make_superpath()
-    print assembly.graph
-    print assembly.eulerian_path()
-    assembly = Assembler(filename, int(k), True)
-    assembly.make_superpath()
-    print assembly.graph
-    print assembly.eulerian_path()
+# def final_test(filename, k):
+#     assembly = Assembler(filename, int(k))
+#     assembly.make_superpath()
+#     print assembly.graph
+#     assembly.eulerian_path()
+#     assembly = Assembler(filename, int(k), True)
+#     assembly.make_superpath()
+#     print assembly.graph
+#     print assembly.eulerian_path()
 
 
 #test("data/simple.fastq", 6)
-#test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobinerrors.fastq", 5, 5)
-final_test("data/hba1.fastq", 5)
+test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobinerrors.fastq", 5, 5)
+# final_test("data/hba1.fastq", 11)
 
 
 # #Command-line driver for assembly

@@ -365,7 +365,6 @@ class Graph:
         for read in self.seqs:
             one_sequence_kmers = []
             for i in range(len(read)-(self.k)+1):
-                # print read[i:i+(self.k)]
                 one_sequence_kmers.append(read[i:i+(self.k)])
                 #add the occurances to the dictionary
                 if read[i:i+(self.k)] not in freqdict:
@@ -377,73 +376,57 @@ class Graph:
         seqlist = deepcopy(list_sequences)
         #loop through the reads of the list sequence
         for read in seqlist:
-        #for every kmer in each list
+            #for every kmer in each list
             for i in range(len(read)):
                 kmer = read[i]
-        #look up in the freqdict and check if occurences is greater than or equal to threshold
+                #look up in the freqdict and check if occurences is greater than or equal to threshold
                 ocurrences = freqdict[kmer]
                 if ocurrences < threshold:
-        #if its less, loop to the next k-1 kmers and check if they are also less than threshold
-        #if k/2 of those kmers are also below threshold, need to change something, otherwise just keep it
+                    #if its less, loop to the next k-1 kmers and check if they are also less than threshold
+                    #if k/2 of those kmers are also below threshold, need to change something, otherwise just keep it
                     cutoff = ceil((len(kmer)/2.0))
-                    #print cutoff
-                    for j in range(len(kmer)):#loop through k-1 kmers after it
+                    for j in range(len(kmer)): #loop through k-1 kmers after it
                         if i+j >= len(read):
                             break
                         if freqdict[read[i+j]] < threshold:
                             cutoff -= 1
-            #if too many neighbors are all under the threshold, need to find a way to change something
-                        #print cutoff
+                        #if too many neighbors are all under the threshold, need to find a way to change something
                         if cutoff <= 0:
                             choices = ["A", "C", "G", "T"]
                             bestScore = 0
-                            indexToChange = -1 #index within the kmer that needs to be changed
                             kmersToChange = -1 #first kmer that needs to be changed
                             letter = -1 #index of letter to be switched to in choices
 
                             #only loop through second half of the letters in the kmer
-                            for x in range(int(ceil(len(kmer)/2.0))): #is this that you are checking to see which letter
-                                # we are not just always gonna pick the last one?
+                            for x in range(int(ceil(len(kmer)/2.0))):
                                 index = -1 - x
-                                #print index
                                 #keep track of scores of substituting each letter
                                 scores = [0, 0, 0, 0]
                                 for y in range(len(kmer) - x):
-                                    #print x, y
                                     #loop through the kmers that also include the letter to compare scores
-                                    kmerIndex = (i) + y # i is index of kmer, x is letter choice, y is continuous after kmer
-                                    #print kmerIndex #used to be i-x + y
-                                    # wait is this so that you backtrack so it is at the end? if so brilliant
+                                    kmerIndex = (i) + y
                                     if kmerIndex >= len(read) or kmerIndex < 0:
                                         continue
                                     for n in range(len(choices)):
                                         option = str(read[kmerIndex])
-                                        #print option
                                         optionlist = list(option)
-                                        new_index = index - y # used to have a -x
+                                        new_index = index - y
                                         if new_index < -len(kmer):
                                             new_index += len(kmer)
-                                        optionlist[new_index] = choices[n] #index - y
+                                        optionlist[new_index] = choices[n]
                                         optionsbacktostring = ''.join(optionlist)
                                         option = optionsbacktostring
-                                        #print option
-                                        #option = option.replace(option[index], choices[n])
                                         if option in freqdict:
                                             #add in the differences of occurances for the replacement and original
                                             scores[n] += (freqdict[option] - freqdict[read[kmerIndex]])
-                                        #????? how should we deal with things not even in the dictionary??
                                         else:
+                                            #negatively impact things not in the dictionary
                                             scores[n] -= 10
-                                #for that letter in the original kmer, change it if the score of a certain combo is best
-                                #print scores
 
                                 for n in range(len(scores)):
                                     if scores[n] > bestScore:
                                         bestScore = scores[n]
-                                        #print bestScore
-                                        indexToChange = len(kmer) - 1 - x
                                         kmersToChange = (i-x)#first one to change - index is len
-                                        #print kmersToChange
                                         letter = n
                             if bestScore == 0:
                                 #the original is still the best option, keep it
@@ -452,8 +435,6 @@ class Graph:
                                 #change the kmer if need be
                                 for p in range(len(kmer)): #changed to -x
                                     if (p + kmersToChange) < len(read):
-                                        #print p + kmersToChange
-                                        #print read[kmersToChange + p]
                                         freqdict[read[kmersToChange + p]] -= 1
                                         listofkmer = list(read[kmersToChange + p])
                                         listofkmer[-(p + 1)] = choices[letter] # -(p+1)
@@ -463,8 +444,6 @@ class Graph:
                                             freqdict[read[kmersToChange + p]] += 1
                                         else:
                                             freqdict[read[kmersToChange + p]] = 1
-                                    #read[kmersToChange + p] = read[kmersToChange + p].replace(read[kmersToChange + p][-p], choices[letter])
-                                        #print read[kmersToChange + p]
         return seqlist, list_sequences
 
 def results(original, start, end): #list of lists
