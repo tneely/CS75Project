@@ -19,12 +19,12 @@ import sys
 ### CODE ###
 ############
 class Assembler:
-    def __init__(self, filename, k):
+    def __init__(self, filename, k, errorcorrect=False):
 
         #loads file
         reads = Loader.load(filename)
         #gets graph
-        self.graph = Graph(reads, k)
+        self.graph = Graph(reads, k, errorcorrect)
         self.k = k
 
     def make_superpath(self):
@@ -150,13 +150,25 @@ def test(filename, k):
 
 def test_errorcorrection(filename, badfilename, k, threshold):
     reads = Loader.load(filename)
-    graph = Graph(reads, k)
+    graph = Graph(reads, int(k))
     reads2 = Loader.load(badfilename)
-    grapherrors = Graph(reads2, k, threshold)
+    grapherrors = Graph(reads2, int(k), threshold)
     results(graph.kmers, grapherrors.kmers, grapherrors.correctedseqs)
 
+def final_test(filename, k):
+    assembly = Assembler(filename, int(k))
+    assembly.make_superpath()
+    print assembly.graph
+    print assembly.eulerian_path()
+    assembly = Assembler(filename, int(k), True)
+    assembly.make_superpath()
+    print assembly.graph
+    print assembly.eulerian_path()
+
+
 #test("data/simple.fastq", 6)
-test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobinerrors.fastq", 5, 5)
+#test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobinerrors.fastq", 5, 5)
+final_test("data/hba1.fastq", 5)
 
 
 # #Command-line driver for assembly

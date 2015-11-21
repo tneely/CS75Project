@@ -180,7 +180,7 @@ class Read:
 ##################
 class Graph:
 
-    def __init__(self, seqs, k, threshold=5):
+    def __init__(self, seqs, k, threshold=5, errorcorrect=False):
         """Takes reads from Loader and kmer
             length to initialize deBruijn Graph
         """
@@ -196,10 +196,8 @@ class Graph:
         #kmers is 2Dlist of original kmers, corrected seqs is 2d list of corrected kmers
         self.correctedseqs, self.kmers = self.error_correct(self.threshold)
 
-        print self.seqs
         #need to re-concatenate the kmers in the error correction section
         for n in range(len(self.correctedseqs)):
-            print self.correctedseqs[n]
             newread = ""
             for i in self.correctedseqs[n]:
                 if newread == "":
@@ -207,7 +205,9 @@ class Graph:
                 else:
                     newread += i[-1]
             self.correctedseqs[n] = newread
-        print self.correctedseqs
+
+        if errorcorrect:
+            self.seqs = self.correctedseqs
 
         for s in range(len(seqs)):
             #get seq
