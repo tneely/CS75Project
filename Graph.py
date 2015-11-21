@@ -252,7 +252,6 @@ class Graph:
 
         return edge
 
-    """UNSURE IF THIS STILL WORKS"""
     def get_unvisited(self, node):
         # get edges for node
         for edge in node.outEdges:
@@ -276,7 +275,6 @@ class Graph:
         #get new sequence for edge
         yLen = len(y.sequence)
         seq = x.sequence + y.sequence[self.k-1:]
-        # print x.sequence, y.sequence, seq
         #create new edge
         z = self.new_edge(inNode, outNode, seq)
         #update nodes, paths
@@ -293,17 +291,7 @@ class Graph:
 
         return z
 
-    def is_mergeable(self, p, x, y, linear): #x is an edge1, y is edge2, p is preceding edge
-        #check if repeat
-        # if len(x.reads) == 1 and len(y.reads) == 1 and len(x.inNode.inEdges) == 1 \
-        #     and len(x.inNode.outEdges) == 1 and len(x.outNode.inEdges) == 1 \
-        #     and len(x.outNode.outEdges) == 1 and len(y.outNode.inEdges) == 1 \
-        #     and len(y.outNode.outEdges) == 1:
-        #     # its not a repeat, mergable
-        #     return True
-        # elif linear:
-        #     return False # its a repeat, so not linear
-        # else: #its a repeat
+    def is_mergeable(self, p, x, y): #x is an edge1, y is edge2, p is preceding edge
         isSpanned = False
         for read in x.reads:
             if read in y.reads:
@@ -327,26 +315,6 @@ class Graph:
                             isConflicted = True
 
             return isSpanned and not isConflicted
-
-           #  freqDictx = {}
-           #  freqDicty = {}
-           #  for read in x.reads:
-           #      if freqDictx.has_key(read.id):
-           #          freqDictx[read.id] += 1
-           #      else:
-           #          freqDictx[read.id] = 1
-           #  for read in y.reads:
-           #      if freqDicty.has_key(read.id):
-           #          freqDicty[read.id] += 1
-           #      else:
-           #          freqDicty[read.id] = 1
-           #  for idnum in freqDictx:
-           #      if idnum in freqDicty and freqDictx[idnum] != freqDicty[idnum]:#if the number of a certain read in x does not equal amount for same read in y
-           #          return False
-           #  for read in x.reads: #if a path starts in x
-           #      if x == read[0]:
-           #          return False
-           #  return True
 
     def clean(self):
         """Removes stray edges and

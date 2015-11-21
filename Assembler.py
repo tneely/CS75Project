@@ -30,14 +30,11 @@ class Assembler:
     def make_superpath(self):
         """loops to make superpaths in graph"""
         # try without curls
-        while self.superpath_helper(True):
+        while self.superpath_helper():
             self.graph.clean()
-        # try with curls
-        # while self.superpath_helper(False):
-        #     self.graph.clean()
         self.graph.clean()
 
-    def superpath_helper(self, linear):
+    def superpath_helper(self):
         """Does actual merging"""
         for read in self.graph.readList:
             for i in range(len(read.edges)-1):
@@ -50,7 +47,7 @@ class Assembler:
                 x = read.edges[i]
                 y = read.edges[i+1]
                 #check if edges can be merged
-                if self.graph.is_mergeable(p,x,y,linear):
+                if self.graph.is_mergeable(p,x,y):
                     #make sure merge worked
                     if self.graph.merge(x,y):
                         return True
