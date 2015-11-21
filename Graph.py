@@ -192,7 +192,22 @@ class Graph:
         self.k = k
         self.seqs = seqs
         self.threshold = threshold #for error correction
+
+        #kmers is 2Dlist of original kmers, corrected seqs is 2d list of corrected kmers
         self.correctedseqs, self.kmers = self.error_correct(self.threshold)
+
+        print self.seqs
+        #need to re-concatenate the kmers in the error correction section
+        for n in range(len(self.correctedseqs)):
+            print self.correctedseqs[n]
+            newread = ""
+            for i in self.correctedseqs[n]:
+                if newread == "":
+                    newread += i
+                else:
+                    newread += i[-1]
+            self.correctedseqs[n] = newread
+        print self.correctedseqs
 
         for s in range(len(seqs)):
             #get seq
