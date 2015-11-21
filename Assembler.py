@@ -145,21 +145,21 @@ class Assembler:
         return sequence
 
 
-# def test(filename, k):
-#     assembly = Assembler(filename, int(k))
-#     assembly.make_superpath()
-#     print assembly.graph
-#     assembly.eulerian_path()
+def test(filename, k):
+    assembly = Assembler(filename, int(k))
+    assembly.make_superpath()
+    print assembly.graph
+    assembly.eulerian_path()
 
-# def test_errorcorrection(filename, badfilename, k, threshold):
-#     reads = Loader.load(filename)
-#     graph = Graph(reads, k)
-#     reads2 = Loader.load(badfilename)
-#     grapherrors = Graph(reads2, k)
-#     results(graph.seqs, grapherrors.seqs, grapherrors.correctedseqs)
+def test_errorcorrection(filename, badfilename, k, threshold):
+    reads = Loader.load(filename)
+    graph = Graph(reads, k)
+    reads2 = Loader.load(badfilename)
+    grapherrors = Graph(reads2, k, threshold)
+    results(graph.kmers, grapherrors.kmers, grapherrors.correctedseqs)
 
-# test("data/simple.fastq", 6)
-# test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobin.fastq", 3, 5)
+#test("data/simple.fastq", 6)
+test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobin.fastq", 3, 4)
 
 
 #Command-line driver for assembly
