@@ -509,11 +509,11 @@ def results(original, start, end): #list of lists
     print "Percent original errors:"
     print originalerrors, originalerrors/total_kmers * 100
     print "Percent corrected:"
-    print correctederrors, correctederrors/total_kmers * 100
+    print correctederrors, correctederrors/originalerrors * 100
     print "Introduced errors:"
     print introducederrors, introducederrors/total_kmers * 100
     print "Inaccurate correction:"
-    print innacuratecorrection, innacuratecorrection/total_kmers * 100
+    print innacuratecorrection, innacuratecorrection/originalerrors * 100
 
 
 

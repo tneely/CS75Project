@@ -159,14 +159,14 @@ def test_errorcorrection(filename, badfilename, k, threshold):
     results(graph.kmers, grapherrors.kmers, grapherrors.correctedseqs)
 
 #test("data/simple.fastq", 6)
-test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobin.fastq", 3, 4)
+test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobinerrors.fastq", 5, 5)
 
 
-#Command-line driver for assembly
-if __name__ == '__main__':
-    filename = sys.argv[1]
-    k = sys.argv[2]
-    assembly = Assembler(filename, int(k))
-    assembly.make_superpath()
-    # print assembly.graph
-    print assembly.eulerian_path()
+# #Command-line driver for assembly
+# if __name__ == '__main__':
+#     filename = sys.argv[1]
+#     k = sys.argv[2]
+#     assembly = Assembler(filename, int(k))
+#     assembly.make_superpath()
+#     # print assembly.graph
+#     print assembly.eulerian_path()
