@@ -27,8 +27,6 @@ class Loader:
                 reads = Loader.load("file.fq")
         """
         self.reads = reads
-        print "Here are the reads!"
-        print reads
 
     @staticmethod
     def load(filename):
@@ -62,6 +60,10 @@ class Loader:
                 name = line[1:] # do we want this?
                 isSeqNext = True
             elif isSeqNext:
+                #skip bad reads (temp solution)
+                if "N" in line:
+                    isSeqNext = False
+                    continue
                 reads.append(line)
                 isSeqNext = False
 

@@ -280,8 +280,6 @@ class Graph:
         #create new edge
         z = self.new_edge(inNode, outNode, seq)
         #update nodes, paths
-        print inNode,midNode,outNode
-        print x,y
         if x in inNode.outEdges:
             inNode.outEdges.remove(x)
         if x in midNode.inEdges:
@@ -384,7 +382,7 @@ class Graph:
         for read in self.seqs:
             one_sequence_kmers = []
             for i in range(len(read)-(self.k)+1):
-                print read[i:i+(self.k)]
+                # print read[i:i+(self.k)]
                 one_sequence_kmers.append(read[i:i+(self.k)])
                 #add the occurances to the dictionary
                 if read[i:i+(self.k)] not in freqdict:

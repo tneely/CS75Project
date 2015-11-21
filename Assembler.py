@@ -115,11 +115,9 @@ class Assembler:
             if diff == 1 and len(node.inEdges) < len(node.outEdges):
                 edge = self.graph.get_unvisited(node)
         # just pick first if failed
-        edge = None
         if not edge: edge = self.graph.get_unvisited(self.graph.nodeList[0])
         # add all edges to stack in linear fashion
         while edge != None:
-            print edge
             edge.visited = True
             currentPath.append(edge)
             edge = self.graph.get_unvisited(edge.outNode) # next node/edge
@@ -147,28 +145,28 @@ class Assembler:
         return sequence
 
 
-def test(filename, k):
-    assembly = Assembler(filename, int(k))
-    assembly.make_superpath()
-    print assembly.graph
-    assembly.eulerian_path()
+# def test(filename, k):
+#     assembly = Assembler(filename, int(k))
+#     assembly.make_superpath()
+#     print assembly.graph
+#     assembly.eulerian_path()
 
-def test_errorcorrection(filename, badfilename, k, threshold):
-    reads = Loader.load(filename)
-    graph = Graph(reads, k)
-    reads2 = Loader.load(badfilename)
-    grapherrors = Graph(reads2, k)
-    results(graph.seqs, grapherrors.seqs, grapherrors.correctedseqs)
+# def test_errorcorrection(filename, badfilename, k, threshold):
+#     reads = Loader.load(filename)
+#     graph = Graph(reads, k)
+#     reads2 = Loader.load(badfilename)
+#     grapherrors = Graph(reads2, k)
+#     results(graph.seqs, grapherrors.seqs, grapherrors.correctedseqs)
 
 # test("data/simple.fastq", 6)
 # test_errorcorrection("data/hemoglobin.fastq", "data/hemoglobin.fastq", 3, 5)
 
 
-# Command-line driver for assembly
-# if __name__ == '__main__':
-#     filename = sys.argv[1]
-#     k = sys.argv[2]
-#     assembly = Assembler(filename, int(k))
-#     assembly.make_superpath()
-#     print assembly.graph
-#     assembly.eulerian_path()
+#Command-line driver for assembly
+if __name__ == '__main__':
+    filename = sys.argv[1]
+    k = sys.argv[2]
+    assembly = Assembler(filename, int(k))
+    assembly.make_superpath()
+    # print assembly.graph
+    print assembly.eulerian_path()
