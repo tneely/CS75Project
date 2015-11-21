@@ -33,7 +33,7 @@ class Node:
             Returns:
                 String
         """
-        return self.sequence[pos]
+        return self.sequence[n]
 
     def __len__(self):
         """The length of the sequence
@@ -192,7 +192,7 @@ class Graph:
         self.k = k
         self.seqs = seqs
         self.threshold = threshold #for error correction
-        self.correctedseqs = self.error_correct(self.threshold)
+        self.correctedseqs, self.kmers = self.error_correct(self.threshold)
 
         for s in range(len(seqs)):
             #get seq
@@ -434,15 +434,9 @@ class Graph:
                                     if kmerIndex >= len(read) or kmerIndex < 0:
                                         continue
                                     for n in range(len(choices)):
-                                        option = read[kmerIndex]
+                                        option = str(read[kmerIndex])
                                         #print option
                                         optionlist = list(option)
-                                        #print index
-                                        # print index
-                                        # print "y"
-                                        # print y
-                                        # print x
-                                        #print index - y
                                         new_index = index - y # used to have a -x
                                         if new_index < -len(kmer):
                                             new_index += len(kmer)
@@ -488,7 +482,7 @@ class Graph:
                                             freqdict[read[kmersToChange + p]] = 1
                                     #read[kmersToChange + p] = read[kmersToChange + p].replace(read[kmersToChange + p][-p], choices[letter])
                                         #print read[kmersToChange + p]
-        return seqlist
+        return seqlist, list_sequences
 
 def results(original, start, end): #list of lists
     total_kmers = 0.0
@@ -512,11 +506,14 @@ def results(original, start, end): #list of lists
                     innacuratecorrection += 1
             if original_kmer != end_kmer and original_kmer == start_kmer:
                 introducederrors += 1
-    print "percent original"
+    print "Percent original errors:"
     print originalerrors, originalerrors/total_kmers * 100
-    print correctederrors, correctederrors/total_kmers * 100
+    print "Percent corrected:"
+    print correctederrors, correctederrors/originalerrors * 100
+    print "Introduced errors:"
     print introducederrors, introducederrors/total_kmers * 100
-    print innacuratecorrection, innacuratecorrection/total_kmers * 100
+    print "Inaccurate correction:"
+    print innacuratecorrection, innacuratecorrection/originalerrors * 100
 
 
 
